@@ -22,25 +22,20 @@
         .dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--primary); margin: 0 8px; }
         .dot.active { background: var(--primary); }
 
-        /* LAYOUT */
         .app-shell { display: flex; flex-direction: column; height: 100vh; }
         .content-scroll { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: calc(110px + var(--safe-bottom)); }
         
-        /* MAIN PROGRESS CARD */
         .main-card { padding: 30px 25px; border-radius: 32px; color: white; background: var(--grad); margin-bottom: 20px; box-shadow: 0 15px 30px -10px rgba(16,185,129,0.3); }
         .progress-bar { background: rgba(0,0,0,0.05); height: 8px; border-radius: 20px; margin: 12px 0; overflow: hidden; }
         .progress-bar.white { background: rgba(255,255,255,0.2); }
         .fill { height: 100%; border-radius: 20px; transition: 1s ease; width: 0%; }
         .fill.white { background: white; }
-        .fill.green { background: var(--primary); }
 
-        /* PILLAR GRID (NEW) */
         .pillar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
         .pillar-box { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid var(--border); }
         .pillar-box small { font-size: 0.55rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; display: block; margin-bottom: 4px; }
         .pillar-box p { margin: 0; font-size: 0.95rem; font-weight: 600; }
 
-        .insight-card { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 15px; margin-bottom: 20px; font-size: 0.8rem; color: #1e40af; line-height: 1.4; }
         .chart-container { background: var(--card); padding: 20px; border-radius: 28px; border: 1px solid var(--border); margin-bottom: 15px; height: 260px; }
         
         input, select { width: 100%; padding: 16px; margin: 10px 0; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.95rem; outline: none; }
@@ -51,18 +46,19 @@
         .nav-btn.active { opacity: 1; color: var(--primary); }
         .nav-btn span { font-size: 1.4rem; margin-bottom: 2px; }
 
-        .tab-pane { display: none; } .tab-pane.active { display: block; animation: fadeIn 0.3s; }
+        .tab-pane { display: none; } .tab-pane.active { display: block; animation: fadeIn 0.2s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         .history-item { display: flex; justify-content: space-between; padding: 15px; background: var(--card); border-radius: 18px; margin-bottom: 8px; border: 1px solid var(--border); font-size: 0.85rem; align-items: center;}
-        .badge-pay { background: #10b981; color: white; padding: 5px 10px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+        .badge-pay { background: #10b981; color: white; padding: 6px 12px; border-radius: 10px; font-size: 0.7rem; font-weight: 600; cursor: pointer; }
+        .bill-summary { background: #eff6ff; padding: 15px; border-radius: 18px; margin-bottom: 15px; text-align: center; border: 1px dashed #3b82f6; }
     </style>
 </head>
 <body>
 
     <div id="pin-screen" class="pin-overlay">
         <div style="text-align: center;">
-            <h3>Verify Identity</h3>
+            <h3 style="letter-spacing: 2px;">SECURE ACCESS</h3>
             <div style="display: flex; justify-content: center; margin: 20px 0;">
                 <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
             </div>
@@ -79,11 +75,11 @@
         <div class="content-scroll">
             <section id="home" class="tab-pane active">
                 <div class="main-card">
-                    <small>NET LIQUIDITY</small>
+                    <small>NET SAVINGS PROGRESS</small>
                     <h2 id="total-balance" style="font-size: 2.2rem; margin: 10px 0;">R0.00</h2>
                     <div class="progress-bar white"><div id="main-progress" class="fill white"></div></div>
                     <div style="display:flex; justify-content:space-between; font-size:0.7rem;">
-                        <span id="pct-text">0% reached</span><span>R100k Goal</span>
+                        <span id="pct-text">0% reached</span><span>Goal: R100,000</span>
                     </div>
                 </div>
 
@@ -94,17 +90,14 @@
                     <div class="pillar-box"><small>Monthly Goal</small><p id="p-goal" style="color:#3b82f6">R0</p></div>
                 </div>
 
-                <div class="insight-card" id="savings-insight">Loading financial strategy...</div>
-
                 <div class="chart-container">
-                    <h4 style="margin:0 0 10px 0; font-size:0.8rem; opacity: 0.6;">SPENDING BREAKDOWN</h4>
                     <canvas id="spendingChart"></canvas>
                 </div>
             </section>
 
             <section id="income" class="tab-pane">
-                <div class="pillar-box" style="margin-bottom:15px; border-color:var(--primary)">
-                    <h3>Record Income</h3>
+                <div class="pillar-box">
+                    <h3>Add Income</h3>
                     <form onsubmit="handleEntry(event, 'income')">
                         <input type="text" id="in-desc" placeholder="Source" required>
                         <input type="number" id="in-amt" placeholder="Amount (R)" step="0.01" required>
@@ -119,8 +112,8 @@
             </section>
 
             <section id="expense" class="tab-pane">
-                <div class="pillar-box" style="margin-bottom:15px; border-color:#ef4444">
-                    <h3>Record Expense</h3>
+                <div class="pillar-box">
+                    <h3>Add Expense</h3>
                     <form onsubmit="handleEntry(event, 'expense')">
                         <input type="text" id="ex-desc" placeholder="Details" required>
                         <input type="number" id="ex-amt" placeholder="Amount (R)" step="0.01" required>
@@ -135,30 +128,34 @@
             </section>
 
             <section id="bills" class="tab-pane">
-                <div class="pillar-box" style="margin-bottom:15px; border-color:#3b82f6">
-                    <h3>Upcoming Bills</h3>
+                <div class="bill-summary">
+                    <small style="color:#3b82f6; font-weight:600;">TOTAL UNPAID BILLS</small>
+                    <h2 id="total-bills-due" style="margin:5px 0; color:#1e40af;">R0.00</h2>
+                </div>
+                <div class="pillar-box">
+                    <h3>Track New Bill</h3>
                     <form onsubmit="handleBill(event)">
-                        <input type="text" id="bill-desc" placeholder="Bill Name" required>
+                        <input type="text" id="bill-desc" placeholder="e.g. Electricity" required>
                         <input type="number" id="bill-amt" placeholder="Amount (R)" required>
                         <input type="date" id="bill-date" required>
-                        <button type="submit" class="btn-action" style="background:#3b82f6">Track Bill</button>
+                        <button type="submit" class="btn-action" style="background:#3b82f6">Save Bill Data</button>
                     </form>
                 </div>
                 <div id="bills-list"></div>
             </section>
 
             <section id="settings" class="tab-pane">
-                <div class="pillar-box" style="margin-bottom:15px;">
-                    <h3>Monthly Target</h3>
-                    <div style="display:flex; gap:10px;">
+                <div class="pillar-box">
+                    <h3>Settings & Security</h3>
+                    <small>MONTHLY SAVINGS TARGET</small>
+                    <div style="display:flex; gap:10px; margin-bottom: 20px;">
                         <input type="number" id="monthly-goal-input" placeholder="R20,000">
                         <button onclick="saveMonthlyGoal()" class="btn-action" style="background:var(--primary); width: 80px; padding: 10px;">Set</button>
                     </div>
-
-                    <h3 style="margin-top:30px;">Data & Privacy</h3>
-                    <button class="btn-action" style="background:#6366f1; margin-bottom:12px;" onclick="exportFullPDF()">📄 Export Detailed PDF</button>
-                    <button class="btn-action" style="background:#1e293b; margin-bottom:12px;" onclick="updatePin()">🔐 Update PIN</button>
-                    <button class="btn-action" style="background:#475569;" onclick="toggleTheme()">🌓 Toggle Theme</button>
+                    
+                    <button class="btn-action" style="background:#1e293b; margin-bottom:10px;" onclick="updatePin()">🔐 Update Security PIN</button>
+                    <button class="btn-action" style="background:#6366f1; margin-bottom:10px;" onclick="exportFullPDF()">📄 Export Report PDF</button>
+                    <button class="btn-action" style="background:#475569;" onclick="toggleTheme()">🌓 Toggle Appearance</button>
                     <button class="btn-action" style="background:#ef4444; margin-top:30px;" onclick="fullReset()">WIPE ALL DATA</button>
                 </div>
             </section>
@@ -178,13 +175,20 @@
         let appPin = localStorage.getItem('R100k_PIN') || "0000";
         let curPin = "";
         let chart = null;
-        let celebrated = false;
 
         function pressPin(n) { if(curPin.length < 4) curPin += n; updateDots(); }
         function clearPin() { curPin = ""; updateDots(); }
         function updateDots() { document.querySelectorAll('.dot').forEach((d, i) => i < curPin.length ? d.classList.add('active') : d.classList.remove('active')); }
-        function checkPin() { if(curPin === appPin) { document.getElementById('pin-screen').classList.add('hidden'); init(); } else { alert("Wrong PIN"); clearPin(); } }
-        function updatePin() { const n = prompt("New 4-digit PIN:"); if(n && n.length === 4) { appPin = n; localStorage.setItem('R100k_PIN', n); alert("PIN Updated"); } }
+        function checkPin() { if(curPin === appPin) { document.getElementById('pin-screen').classList.add('hidden'); init(); } else { alert("Incorrect PIN"); clearPin(); } }
+        
+        function updatePin() { 
+            const n = prompt("Enter new 4-digit PIN:"); 
+            if(n && n.length === 4 && !isNaN(n)) { 
+                appPin = n; 
+                localStorage.setItem('R100k_PIN', n); 
+                alert("Security PIN Updated!"); 
+            } else { alert("Invalid PIN. Must be 4 numbers."); }
+        }
 
         function init() {
             document.body.setAttribute('data-theme', localStorage.getItem('R100k_Theme') || 'light');
@@ -194,14 +198,15 @@
 
         function saveMonthlyGoal() {
             data.monthlyGoal = parseFloat(document.getElementById('monthly-goal-input').value) || 0;
-            celebrated = false; save(); refresh();
+            save(); refresh(); alert("Target updated");
         }
 
         function switchTab(id, el) {
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active'); el.classList.add('active');
-            if(id === 'home') setTimeout(refresh, 50);
+            if(id === 'home') setTimeout(updateChart, 100);
+            if(id === 'bills') renderBills();
         }
 
         function handleEntry(e, type) {
@@ -219,23 +224,28 @@
 
         function handleBill(e) {
             e.preventDefault();
-            data.bills.push({
+            const newBill = {
                 id: Date.now(),
                 desc: document.getElementById('bill-desc').value,
                 amt: parseFloat(document.getElementById('bill-amt').value),
                 date: document.getElementById('bill-date').value
-            });
-            save(); refresh(); e.target.reset();
+            };
+            data.bills.push(newBill);
+            save(); 
+            renderBills(); 
+            refresh();
+            e.target.reset();
+            alert("Bill tracked successfully!");
         }
 
         function payBill(id) {
-            const bIdx = data.bills.findIndex(b => b.id === id);
-            if (bIdx > -1) {
-                const b = data.bills[bIdx];
-                data.trans.push({ id: Date.now(), type: 'expense', desc: `Paid: ${b.desc}`, amt: b.amt, cat: '🚨', date: new Date().toISOString().split('T')[0] });
-                data.bills.splice(bIdx, 1);
-                save(); refresh();
-                confetti({ particleCount: 40 });
+            const idx = data.bills.findIndex(b => b.id === id);
+            if(idx > -1) {
+                const b = data.bills[idx];
+                data.trans.push({ id: Date.now(), type: 'expense', desc: `Paid Bill: ${b.desc}`, amt: b.amt, cat: '🚨', date: new Date().toISOString().split('T')[0] });
+                data.bills.splice(idx, 1);
+                save(); refresh(); renderBills();
+                confetti({ particleCount: 60, spread: 50 });
             }
         }
 
@@ -244,29 +254,21 @@
             const exp = data.trans.filter(t => t.type === 'expense').reduce((s,t) => s + t.amt, 0);
             const emg = data.trans.filter(t => t.cat === '🚨').reduce((s,t) => s + t.amt, 0);
             const net = inc - exp;
+            const billsDue = data.bills.reduce((s,b) => s + b.amt, 0);
             
-            // Pillar Update
             document.getElementById('total-balance').innerText = `R${net.toLocaleString()}`;
             document.getElementById('p-income').innerText = `R${inc.toLocaleString()}`;
             document.getElementById('p-expense').innerText = `R${exp.toLocaleString()}`;
             document.getElementById('p-emergency').innerText = `R${emg.toLocaleString()}`;
             document.getElementById('p-goal').innerText = `R${data.monthlyGoal.toLocaleString()}`;
+            document.getElementById('total-bills-due').innerText = `R${billsDue.toLocaleString()}`;
             
-            // Progress Logic
-            const daysLeft = Math.max(1, 31 - new Date().getDate());
-            const daily = Math.max(0, (net / daysLeft)).toFixed(0);
-            document.getElementById('savings-insight').innerHTML = `💡 <strong>Insight:</strong> You have <strong>R${daily}</strong> safe to spend daily for ${daysLeft} days.`;
+            const progress = Math.min((net/100000)*100, 100);
+            document.getElementById('main-progress').style.width = progress + '%';
+            document.getElementById('pct-text').innerText = `${progress.toFixed(1)}% of R100k`;
 
-            document.getElementById('main-progress').style.width = Math.min((net/100000)*100, 100) + '%';
-            document.getElementById('pct-text').innerText = `${Math.min((net/100000)*100, 100).toFixed(1)}% of R100k`;
-
-            // Goal Celebration
-            if(data.monthlyGoal > 0 && inc >= data.monthlyGoal && !celebrated) {
-                confetti({ particleCount: 150, spread: 70 });
-                celebrated = true;
-            }
-
-            updateChart(); renderLists();
+            renderHistory();
+            updateChart();
         }
 
         function updateChart() {
@@ -284,42 +286,50 @@
             });
         }
 
-        function renderLists() {
+        function renderHistory() {
             ['income', 'expense'].forEach(type => {
                 const container = document.getElementById(type + '-list');
-                container.innerHTML = `<small style="display:block; margin:10px 0 5px 5px; opacity:0.5; font-weight:600;">LATEST</small>`;
-                data.trans.filter(t => t.type === type).reverse().slice(0, 8).forEach(t => {
-                    container.innerHTML += `<div class="history-item"><span>${t.cat} ${t.desc}</span><strong>R${t.amt.toLocaleString()} <span onclick="deleteItem(${t.id}, 'trans')" style="margin-left:10px; opacity:0.3;">&times;</span></strong></div>`;
+                container.innerHTML = `<small style="display:block; margin:10px 0 5px 0; opacity:0.5; font-weight:600;">LATEST ENTRIES</small>`;
+                data.trans.filter(t => t.type === type).reverse().slice(0, 5).forEach(t => {
+                    container.innerHTML += `<div class="history-item"><span>${t.cat} ${t.desc}</span><strong>R${t.amt.toLocaleString()}</strong></div>`;
                 });
-            });
-            const bList = document.getElementById('bills-list');
-            bList.innerHTML = `<small style="display:block; margin:10px 0 5px 5px; opacity:0.5; font-weight:600;">UNPAID</small>`;
-            data.bills.forEach(b => {
-                bList.innerHTML += `<div class="history-item"><span>📅 ${b.date} - ${b.desc}</span><div style="display:flex; align-items:center;"><strong>R${b.amt.toLocaleString()}</strong><span onclick="payBill(${b.id})" class="badge-pay" style="margin-left:10px;">Paid ✅</span></div></div>`;
             });
         }
 
-        function deleteItem(id, key) { if(confirm("Delete entry?")) { data[key] = data[key].filter(t => t.id !== id); save(); refresh(); } }
+        function renderBills() {
+            const bList = document.getElementById('bills-list');
+            bList.innerHTML = `<small style="display:block; margin:15px 0 5px 0; opacity:0.5; font-weight:600;">OUTSTANDING BILLS</small>`;
+            
+            // Sort bills by date (soonest first)
+            const sortedBills = [...data.bills].sort((a,b) => new Date(a.date) - new Date(b.date));
+            
+            if(sortedBills.length === 0) {
+                bList.innerHTML += `<p style="text-align:center; opacity:0.5; font-size:0.8rem; margin-top:20px;">No unpaid bills found.</p>`;
+            }
+
+            sortedBills.forEach(b => {
+                bList.innerHTML += `
+                    <div class="history-item">
+                        <span>📅 ${b.date}<br><small>${b.desc}</small></span>
+                        <div style="display:flex; align-items:center;">
+                            <strong style="margin-right:12px;">R${b.amt.toLocaleString()}</strong>
+                            <span onclick="payBill(${b.id})" class="badge-pay">Paid ✅</span>
+                        </div>
+                    </div>`;
+            });
+        }
+
         function save() { localStorage.setItem('R100k_Data', JSON.stringify(data)); }
         function toggleTheme() { const t = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; document.body.setAttribute('data-theme', t); localStorage.setItem('R100k_Theme', t); }
-        function fullReset() { if(confirm("Wipe all?")) { localStorage.clear(); location.reload(); } }
+        function fullReset() { if(confirm("Wipe all data? This cannot be undone.")) { localStorage.clear(); location.reload(); } }
 
         function exportFullPDF() {
-            const inc = data.trans.filter(t => t.type === 'income');
-            const exp = data.trans.filter(t => t.type === 'expense');
+            const all = [...data.trans].sort((a,b) => new Date(b.date) - new Date(a.date));
             const el = document.createElement('div');
             el.style.padding = '40px'; el.style.fontFamily = 'Arial';
-            const row = (i) => `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.date}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.cat} ${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">R${i.amt.toLocaleString()}</td></tr>`;
-            el.innerHTML = `
-                <h1 style="color:#10b981;">Financial Report</h1>
-                <p>Net Savings: R${(inc.reduce((s,t)=>s+t.amt,0) - exp.reduce((s,t)=>s+t.amt,0)).toLocaleString()}</p>
-                <p>Monthly Goal: R${data.monthlyGoal.toLocaleString()}</p>
-                <table style="width:100%; border-collapse:collapse; margin-top:20px;">
-                    <tr style="background:#f8f9fa;"><th style="padding:10px; text-align:left;">Date</th><th style="padding:10px; text-align:left;">Item</th><th style="padding:10px; text-align:right;">Amount</th></tr>
-                    ${inc.concat(exp).sort((a,b)=>new Date(b.date)-new Date(a.date)).map(row).join('')}
-                </table>
-            `;
-            html2pdf().from(el).save('Financial-Statement.pdf');
+            const row = (i) => `<tr><td style="padding:10px; border-bottom:1px solid #eee;">${i.date}</td><td style="padding:10px; border-bottom:1px solid #eee;">${i.desc}</td><td style="padding:10px; border-bottom:1px solid #eee; text-align:right; color:${i.type==='income'?'green':'red'}">R${i.amt.toLocaleString()}</td></tr>`;
+            el.innerHTML = `<h2>R100k Financial Statement</h2><table style="width:100%; border-collapse:collapse;">${all.map(row).join('')}</table>`;
+            html2pdf().from(el).save('Wealth-Report.pdf');
         }
     </script>
 </body>
