@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Road to R100k</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root { --primary: #10b981; --grad: linear-gradient(135deg, #10b981, #3b82f6); --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --border: #e2e8f0; --safe-bottom: env(safe-area-inset-bottom); }
+        [data-theme="dark"] { --bg: #020617; --card: #1e293b; --text: #f1f5f9; --border: #334155; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Montserrat', sans-serif; font-weight: 400; }
+        body { margin: 0; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; position: fixed; width: 100%; letter-spacing: -0.2px; }
+
+        h1, h2, h3, h4, strong { font-weight: 600; }
+
+        /* PIN LOCK */
+        .pin-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 10000; display: flex; justify-content: center; align-items: center; }
+        .pin-overlay.hidden { display: none; }
+        .pin-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .pin-grid button { height: 75px; width: 75px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 1.4rem; cursor: pointer; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--primary); margin: 0 6px; }
+        .dot.active { background: var(--primary); }
+
+        /* MOBILE SHELL */
+        .app-shell { display: flex; flex-direction: column; height: 100vh; }
+        .content-scroll { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: calc(100px + var(--safe-bottom)); }
+        
+        /* CARDS */
+        .main-card { padding: 30px 25px; border-radius: 30px; color: white; background: var(--grad); margin-bottom: 20px; box-shadow: 0 10px 25px -5px rgba(16,185,129,0.3); }
+        .progress-bar { background: rgba(255,255,255,0.2); height: 6px; border-radius: 10px; margin: 15px 0; overflow: hidden; }
+        #main-progress { background: white; height: 100%; width: 0%; transition: 1s ease-out; }
+
+        .ai-box { background: #f0f7ff; border: 1px solid #dbeafe; padding: 15px; border-radius: 18px; margin-bottom: 20px; color: #1e40af; font-size: 0.85rem; line-height: 1.5; }
+        [data-theme="dark"] .ai-box { background: #1e293b; color: #bae6fd; border-color: #334155; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 20px; border: 1px solid var(--border); }
+        .stat-box small { font-size: 0.65rem; color: #64748b; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+        .stat-box p { margin: 0; font-size: 1.1rem; }
+
+        .glass-card { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 15px; }
+
+        /* FORM ELEMENTS */
+        input, select { width: 100%; padding: 14px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.95rem; -webkit-appearance: none; }
+        .btn-action { width: 100%; padding: 16px; border-radius: 14px; border: none; color: white; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+        .pos-bg { background: #10b981; } .neg-bg { background: #ef4444; }
+        .sec-bg { background: #6366f1; }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: calc(75px + var(--safe-bottom)); background: var(--card); display: flex; justify-content: space-around; align-items: flex-start; padding-top: 12px; border-top: 1px solid var(--border); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; opacity: 0.4; color: var(--text); font-size: 0.75rem; }
+        .nav-btn.active { opacity: 1; color: var(--primary); }
+        .nav-btn span { font-size: 1.3rem; margin-bottom: 4px; }
+
+        .tab-pane { display: none; } .tab-pane.active { display: block; }
+        
+        /* HISTORY ITEMS */
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); border-radius: 18px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .history-item span { font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div id="pin-screen" class="pin-overlay">
+        <div class="pin-content" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🔒</div>
+            <h2 style="margin: 0; font-size: 1.4rem;">Secure Access</h2>
+            <div style="display: flex; justify-content: center; margin: 30px 0;">
+                <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+            </div>
+            <div class="pin-grid">
+                <button onclick="pressPin(1)">1</button><button onclick="pressPin(2)">2</button><button onclick="pressPin(3)">3</button>
+                <button onclick="pressPin(4)">4</button><button onclick="pressPin(5)">5</button><button onclick="pressPin(6)">6</button>
+                <button onclick="pressPin(7)">7</button><button onclick="pressPin(8)">8</button><button onclick="pressPin(9)">9</button>
+                <button onclick="clearPin()" style="font-size: 1rem;">CLR</button><button onclick="pressPin(0)">0</button><button onclick="checkPin()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-shell">
+        <div class="content-scroll">
+            
+            <section id="home" class="tab-pane active">
+                <div class="main-card">
+                    <small style="opacity: 0.9; font-size: 0.7rem; letter-spacing: 1px;">NET REVENUE</small>
+                    <h2 id="total-balance" style="font-size: 2.2rem; margin: 10px 0; font-weight: 600;">R0.00</h2>
+                    <div class="progress-bar"><div id="main-progress"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                        <span id="pct-text">0%</span><span>Goal: R100k</span>
+                    </div>
+                </div>
+
+                <div class="ai-box" id="ai-estimate">
+                    🤖 Analyzing your financial trajectory...
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box"><small>TOTAL INCOME</small><p id="total-income-val" style="color:#10b981">R0.00</p></div>
+                    <div class="stat-box"><small>TOTAL EXPENSE</small><p id="total-expense-val" style="color:#ef4444">R0.00</p></div>
+                    <div class="stat-box"><small>🚨 EMERGENCY</small><p id="emergency-fund-val" style="color:#3b82f6">R0.00</p></div>
+                    <div class="stat-box"><small>SARS TAX EST.</small><p id="tax-amt" style="color:#f59e0b">R0.00</p></div>
+                </div>
+
+                <div class="glass-card">
+                    <h3 style="margin:0 0 15px 0; font-size: 1rem;">Spending Distribution</h3>
+                    <canvas id="spendingChart" style="max-height: 200px;"></canvas>
+                </div>
+            </section>
+
+            <section id="income" class="tab-pane">
+                <div class="glass-card">
+                    <h2 style="margin:0 0 10px 0; font-size: 1.2rem;">New Income</h2>
+                    <form onsubmit="handleEntry(event, 'income')">
+                        <input type="text" id="in-desc" placeholder="Source" required>
+                        <input type="number" id="in-amt" placeholder="Amount (R)" step="0.01" required>
+                        <select id="in-cat">
+                            <option value="💼">Work</option><option value="✨">Voni</option><option value="📸">FocusTripod</option><option value="🔥">Motivellers</option><option value="🚨">Emergency In</option>
+                        </select>
+                        <input type="date" id="in-date" required>
+                        <button type="submit" class="btn-action pos-bg">Record Income</button>
+                    </form>
+                </div>
+                <div id="income-list"></div>
+            </section>
+
+            <section id="expense" class="tab-pane">
+                <div class="glass-card">
+                    <h2 style="margin:0 0 10px 0; font-size: 1.2rem;">New Expense</h2>
+                    <form onsubmit="handleEntry(event, 'expense')">
+                        <input type="text" id="ex-desc" placeholder="Spent on" required>
+                        <input type="number" id="ex-amt" placeholder="Amount (R)" step="0.01" required>
+                        <select id="ex-cat">
+                            <option value="🍔">Food</option><option value="🚗">Transport</option><option value="✨">Voni Exp</option><option value="🚨">Emergency Out</option><option value="🎉">Fun</option>
+                        </select>
+                        <input type="date" id="ex-date" required>
+                        <button type="submit" class="btn-action neg-bg">Record Expense</button>
+                    </form>
+                </div>
+                <div id="expense-list"></div>
+            </section>
+
+            <section id="settings" class="tab-pane">
+                <div class="glass-card">
+                    <h2 style="margin:0 0 15px 0; font-size: 1.2rem;">App Settings</h2>
+                    <button class="btn-action sec-bg" style="margin-bottom:12px;" onclick="exportMonthlyPDF()">
+                        📄 Download Monthly Report
+                    </button>
+                    <button class="btn-action" style="background:#475569; margin-bottom:12px;" onclick="toggleTheme()">
+                        🌓 Toggle Dark Mode
+                    </button>
+                    <div style="margin-top: 30px; border-top: 1px solid var(--border); padding-top: 20px;">
+                        <button class="btn-action neg-bg" onclick="fullReset()">WIPE ALL DATA</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-btn active" onclick="switchTab('home', this)"><span>🏠</span>Home</div>
+            <div class="nav-btn" onclick="switchTab('income', this)"><span>💰</span>Income</div>
+            <div class="nav-btn" onclick="switchTab('expense', this)"><span>💸</span>Expense</div>
+            <div class="nav-btn" onclick="switchTab('settings', this)"><span>⚙️</span>Settings</div>
+        </nav>
+    </div>
+
+    <script>
+        let data = JSON.parse(localStorage.getItem('R100k_Data')) || { trans: [] };
+        let pin = localStorage.getItem('R100k_PIN') || "0000";
+        let curPin = "";
+        let chart = null;
+
+        function pressPin(n) { if(curPin.length < 4) curPin += n; updateDots(); }
+        function clearPin() { curPin = ""; updateDots(); }
+        function updateDots() { document.querySelectorAll('.dot').forEach((d, i) => i < curPin.length ? d.classList.add('active') : d.classList.remove('active')); }
+        function checkPin() { if(curPin === pin) { document.getElementById('pin-screen').classList.add('hidden'); init(); } else { alert("Incorrect"); clearPin(); } }
+
+        function init() { document.body.setAttribute('data-theme', localStorage.getItem('R100k_Theme') || 'light'); refresh(); }
+
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); el.classList.add('active');
+        }
+
+        function handleEntry(e, type) {
+            e.preventDefault();
+            const pre = type === 'income' ? 'in-' : 'ex-';
+            data.trans.push({
+                id: Date.now(), type,
+                desc: document.getElementById(pre+'desc').value,
+                amt: parseFloat(document.getElementById(pre+'amt').value),
+                cat: document.getElementById(pre+'cat').value,
+                date: document.getElementById(pre+'date').value
+            });
+            save(); refresh(); e.target.reset();
+        }
+
+        function refresh() {
+            const inc = data.trans.filter(t => t.type === 'income').reduce((s,t) => s + t.amt, 0);
+            const exp = data.trans.filter(t => t.type === 'expense').reduce((s,t) => s + t.amt, 0);
+            const rev = inc - exp;
+            
+            document.getElementById('total-balance').innerText = `R${rev.toLocaleString()}`;
+            document.getElementById('total-income-val').innerText = `R${inc.toLocaleString()}`;
+            document.getElementById('total-expense-val').innerText = `R${exp.toLocaleString()}`;
+            
+            const emVal = data.trans.filter(t => t.cat === '🚨').reduce((s,t) => t.type==='income'?s+t.amt:s-t.amt, 0);
+            document.getElementById('emergency-fund-val').innerText = `R${emVal.toLocaleString()}`;
+
+            const pct = Math.min((rev/100000)*100, 100).toFixed(1);
+            document.getElementById('main-progress').style.width = pct + '%';
+            document.getElementById('pct-text').innerText = pct + '%';
+
+            if(data.trans.length > 2) {
+                const days = Math.max((Date.now() - Math.min(...data.trans.map(t=>t.id)))/(1000*60*60*24), 1);
+                const daily = rev / days;
+                document.getElementById('ai-estimate').innerHTML = `🤖 <strong>Forecast:</strong> Averaging <strong>R${daily.toFixed(0)}/day</strong>. Milestone reached in <strong>${Math.max(0, ((100000-rev)/daily).toFixed(0))} days</strong>.`;
+            }
+
+            document.getElementById('tax-amt').innerText = `R${(inc > 95000 ? inc * 0.18 : 0).toLocaleString()}`;
+            updateChart(); renderLists();
+        }
+
+        function renderLists() {
+            ['income', 'expense'].forEach(type => {
+                const container = document.getElementById(type + '-list');
+                container.innerHTML = `<h4 style="margin: 15px 5px 10px; font-size: 0.75rem; color:grey; letter-spacing:1px;">LATEST ${type.toUpperCase()}</h4>`;
+                data.trans.filter(t => t.type === type).reverse().slice(0, 5).forEach(t => {
+                    container.innerHTML += `<div class="history-item"><span>${t.cat} ${t.desc}</span><strong>R${t.amt.toLocaleString()} <span onclick="deleteItem(${t.id})" style="margin-left:12px; opacity:0.2;">&times;</span></strong></div>`;
+                });
+            });
+        }
+
+        function deleteItem(id) { if(confirm("Remove?")) { data.trans = data.trans.filter(t => t.id !== id); save(); refresh(); } }
+        function save() { localStorage.setItem('R100k_Data', JSON.stringify(data)); }
+        function toggleTheme() { const t = document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'; document.body.setAttribute('data-theme', t); localStorage.setItem('R100k_Theme', t); }
+        function fullReset() { if(confirm("Clear everything?")) { localStorage.clear(); location.reload(); } }
+
+        function updateChart() {
+            const ctx = document.getElementById('spendingChart').getContext('2d');
+            const cats = {};
+            data.trans.filter(t => t.type === 'expense').forEach(t => cats[t.cat] = (cats[t.cat] || 0) + t.amt);
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'], borderWidth: 0 }] },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
+            });
+        }
+
+        function exportMonthlyPDF() {
+            const element = document.createElement('div');
+            element.style.padding = '30px';
+            element.innerHTML = `<h1 style="color:#10b981">R100k Report</h1><hr><p>Net Revenue: <strong>${document.getElementById('total-balance').innerText}</strong></p>`;
+            html2pdf().from(element).save('Monthly-Report.pdf');
+        }
+    </script>
+</body>
+</html>
